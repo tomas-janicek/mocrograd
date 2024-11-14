@@ -1,0 +1,18 @@
+[project]
+authors = ["Tomas Janicek <tomas.janicek@redampsecurity.com>"]
+channels = [
+    "conda-forge",
+    "https://conda.modular.com/max",
+    "https://repo.prefix.dev/mojo-community",
+]
+description = "Add a short description here"
+name = "mocrograd"
+platforms = ["osx-arm64"]
+version = "0.1.0"
+
+[tasks]
+
+[dependencies]
+max = ">=24.5.0,<25"
+numpy = ">=1.26.4,<2"
+pytorch = ">=2.5.1,<3"
