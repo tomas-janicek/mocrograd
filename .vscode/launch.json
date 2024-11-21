@@ -18,6 +18,16 @@
         {
             "type": "mojo-lldb",
             "request": "launch",
+            "name": "Run Digits Training",
+            "mojoFile": "${workspaceFolder}/run_digits_training.mojo",
+            "args": [],
+            "env": [],
+            "cwd": "${workspaceFolder}",
+            "runInTerminal": false
+        },
+        {
+            "type": "mojo-lldb",
+            "request": "launch",
             "name": "Mojo: Debug current Mojo file",
             "description": "Launch and debug the Mojo file that is active on the editor when the debug session starts.",
             "mojoFile": "${file}",
@@ -32,17 +42,6 @@
             "name": "Mojo: Debug Mojo file",
             "description": "Launch and debug a Mojo file given its path.",
             "mojoFile": "${workspaceFolder}/<your_file.mojo>",
-            "args": [],
-            "env": [],
-            "cwd": "${workspaceFolder}",
-            "runInTerminal": false
-        },
-        {
-            "type": "mojo-lldb",
-            "request": "launch",
-            "name": "Mojo: Debug binary",
-            "description": "Launch and debug a precompiled binary given its path.",
-            "program": "${workspaceFolder}/<your_binary>",
             "args": [],
             "env": [],
             "cwd": "${workspaceFolder}",

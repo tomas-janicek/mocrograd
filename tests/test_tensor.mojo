@@ -1,29 +1,23 @@
 import testing
 
-from mocrograd import tensor, grads
+from memory import Arc
+
+from mocrograd import tensor, grads, matrix
 
 
-fn create_a() -> tensor.Tensor[2, 3, grads.NoneBackward]:
-    data = tensor.Matrix[2, 3]()
+fn _create_tensor() -> tensor.Tensor:
+    var data = matrix.Matrix(2, 3)
     data[0, 0] = 1.0
     data[0, 1] = 2.0
     data[0, 2] = 3.0
     data[1, 0] = 4.0
     data[1, 1] = 5.0
     data[1, 2] = 6.0
-    return tensor.Tensor[2, 3, grads.NoneBackward](data^, requires_grad=True)
-
-
-fn create_b() -> tensor.Tensor[3, 1, grads.NoneBackward]:
-    data = tensor.Matrix[3, 1]()
-    data[0, 0] = 7.0
-    data[1, 0] = 8.0
-    data[2, 0] = 9.0
-    return tensor.Tensor[3, 1, grads.NoneBackward](data^, requires_grad=True)
+    return tensor.Tensor(data=data^, requires_grad=True)
 
 
 fn test_get() raises -> None:
-    t = create_a()
+    var t = _create_tensor()
 
     testing.assert_equal(t[0, 0], 1.0)
     testing.assert_equal(t[0, 1], 2.0)
@@ -32,7 +26,7 @@ fn test_get() raises -> None:
 
 
 fn test_set() raises -> None:
-    t = tensor.Tensor[2, 3, grads.NoneBackward](requires_grad=True)
+    var t = tensor.Tensor(2, 3, requires_grad=True)
     t[0, 0] = 1.0
     t[0, 1] = 2.0
     t[0, 2] = 3.0
@@ -47,26 +41,34 @@ fn test_set() raises -> None:
 
 
 fn test_move() raises:
-    t1 = create_a()
+    var t1 = _create_tensor()
     testing.assert_equal(t1[1, 2], 6.0)
 
-    t2 = t1^
+    var t2 = t1^
     testing.assert_equal(t2[1, 2], 6.0)
-    # Cannot evem access t1
+    # Cannot even access t1
     # testing.assert_equal(t1[1, 2], 6.0)
 
 
 fn test_copy() raises -> None:
-    t1 = create_a()
+    var t1 = _create_tensor()
     testing.assert_equal(t1[1, 2], 6.0)
 
-    t2 = t1
+    var t2 = t1
     testing.assert_equal(t1[1, 2], 6.0)
     testing.assert_equal(t2[1, 2], 6.0)
+
+    # Matrix is using same underlying data even when we copy the structure.
+    t2[1, 2] = 7.0
+
+    testing.assert_equal(t1[1, 2], 7.0)
+    testing.assert_equal(t2[1, 2], 7.0)
 
 
 fn run_tests() raises -> None:
     test_get()
     test_set()
+    test_move()
+    test_copy()
 
     print("All tensor tests passed!")

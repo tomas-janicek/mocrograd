@@ -1,99 +1,155 @@
-from mocrograd import tensor
+from collections import Optional
+
+from mocrograd import tensor, matrix
 
 
-trait Backward(Copyable, Movable):
-    fn backward(self, out: tensor.Tensor) raises -> None:
-        ...
+fn sum_backward(
+    out: matrix.Matrix,
+    grad: Optional[matrix.Matrix],
+    previous: List[tensor.Tensor],
+    grad_args: List[Float32],
+) raises -> None:
+    var left = previous[0]
+
+    if not grad or not left.grad:
+        raise "MissingGradError"
+
+    var out_grad = grad.value()[0, 0]
+    for row in range(left.rows):
+        for col in range(left.cols):
+            left.grad.value()[row, col] += out_grad
 
 
-struct NoneBackward(Backward):
-    fn __init__(inout self):
-        ...
+fn addition_backward(
+    out: matrix.Matrix,
+    grad: Optional[matrix.Matrix],
+    previous: List[tensor.Tensor],
+    grad_args: List[Float32],
+) raises -> None:
+    var left = previous[0]
+    var right = previous[1]
 
-    fn backward(self, out: tensor.Tensor) raises -> None:
-        ...
+    if not grad:
+        raise "MissingGradError"
+    if not left.grad and not right.grad:
+        raise "MissingGradError"
 
-    fn __copyinit__(inout self, other: Self):
-        ...
-
-    fn __moveinit__(inout self, owned existing: Self):
-        ...
-
-
-struct MatnulBackward[
-    a_rows: Int,
-    a_cols: Int,
-    a_backward_t: Backward,
-    b_rows: Int,
-    b_cols: Int,
-    b_backward_t: Backward,
-](Backward):
-    var a: tensor.Tensor[a_rows, a_cols, a_backward_t]
-    var b: tensor.Tensor[b_rows, b_cols, b_backward_t]
-
-    fn __init__(
-        inout self,
-        a: tensor.Tensor[a_rows, a_cols, a_backward_t],
-        b: tensor.Tensor[b_rows, b_cols, b_backward_t],
-    ):
-        self.a = a
-        self.b = b
-
-    fn backward(self, out: tensor.Tensor) raises -> None:
-        if not out.grad:
-            raise "MissingGradError"
-        if not self.a.grad and not self.b.grad:
-            raise "MissingGradError"
-
-        for m in range(self.a.rows):
-            for k in range(self.a.cols):
-                for n in range(self.b.cols):
-                    if self.a.grad:
-                        a_grad = self.a.grad.value()
-                        a_grad_value = a_grad[m, k]
-                        new_grad_value = self.b[k, n] * out.grad.value()[m, n]
-                        a_grad.store(m, k, a_grad_value + new_grad_value)
-                    if self.b.grad:
-                        b_grad = self.b.grad.value()
-                        b_grad_value = b_grad[m, k]
-                        new_grad_value = self.a[m, k] * out.grad.value()[m, n]
-                        b_grad.store(k, n, b_grad_value + new_grad_value)
-
-    fn __copyinit__(inout self, existing: Self):
-        self.a = existing.a
-        self.b = existing.b
-
-    fn __moveinit__(inout self, owned existing: Self):
-        self.a = existing.a^
-        self.b = existing.b^
+    for row in range(left.rows):
+        for col in range(left.cols):
+            var grad_value = grad.value()[row, col]
+            if left.grad:
+                left.grad.value()[row, col] += grad_value
+            if right.grad:
+                right.grad.value()[row, col] += grad_value
 
 
-struct SumBackward[
-    rows: Int,
-    cols: Int,
-    backward_t: Backward,
-](Backward):
-    var a: tensor.Tensor[rows, cols, backward_t]
+fn addition_number_backward(
+    out: matrix.Matrix,
+    grad: Optional[matrix.Matrix],
+    previous: List[tensor.Tensor],
+    grad_args: List[Float32],
+) raises -> None:
+    var left = previous[0]
 
-    fn __init__(
-        inout self,
-        a: tensor.Tensor[rows, cols, backward_t],
-    ):
-        self.a = a
+    if not grad or not left.grad:
+        raise "MissingGradError"
 
-    fn backward(self, out: tensor.Tensor) raises -> None:
-        if not out.grad or self.a.grad:
-            raise "MissingGradError"
+    for row in range(left.rows):
+        for col in range(left.cols):
+            var grad_value = grad.value()[row, col]
+            left.grad.value()[row, col] += grad_value
 
-        out_grad = out.grad.value()[0, 0]
-        for row in range(self.a.rows):
-            for col in range(self.a.cols):
-                a_grad = self.a.grad.value()
-                a_grad_value = a_grad[row, col]
-                a_grad.store(row, col, a_grad_value + out_grad)
 
-    fn __copyinit__(inout self, existing: Self):
-        self.a = existing.a
+fn matmul_backward(
+    out: matrix.Matrix,
+    grad: Optional[matrix.Matrix],
+    previous: List[tensor.Tensor],
+    grad_args: List[Float32],
+) raises -> None:
+    var left = previous[0]
+    var right = previous[1]
 
-    fn __moveinit__(inout self, owned existing: Self):
-        self.a = existing.a^
+    if not grad:
+        raise "MissingGradError"
+    if not left.grad and not right.grad:
+        raise "MissingGradError"
+
+    for m in range(left.rows):
+        for k in range(left.cols):
+            for n in range(right.cols):
+                if left.grad:
+                    left.grad.value()[m, k] += right[k, n] * grad.value()[m, n]
+                if right.grad:
+                    right.grad.value()[k, n] += left[m, k] * grad.value()[m, n]
+
+
+fn power_backward(
+    out: matrix.Matrix,
+    grad: Optional[matrix.Matrix],
+    previous: List[tensor.Tensor],
+    grad_args: List[Float32],
+) raises -> None:
+    var left = previous[0]
+    var power = grad_args[0]
+
+    if not grad or not left.grad:
+        raise "MissingGradError"
+
+    for row in range(left.rows):
+        for col in range(left.cols):
+            left.grad.value()[row, col] += (
+                power * left[row, col] ** (power - 1)
+            ) * grad.value()[row, col]
+
+
+fn mul_backward(
+    out: matrix.Matrix,
+    grad: Optional[matrix.Matrix],
+    previous: List[tensor.Tensor],
+    grad_args: List[Float32],
+) raises -> None:
+    var left = previous[0]
+    var multiplier = grad_args[0]
+
+    if not grad or not left.grad:
+        raise "MissingGradError"
+
+    for row in range(left.rows):
+        for col in range(left.cols):
+            left.grad.value()[row, col] += multiplier * grad.value()[row, col]
+
+
+fn relu_backward(
+    out: matrix.Matrix,
+    grad: Optional[matrix.Matrix],
+    previous: List[tensor.Tensor],
+    grad_args: List[Float32],
+) raises -> None:
+    var left = previous[0]
+
+    if not grad or not left.grad:
+        raise "MissingGradError"
+
+    for row in range(left.rows):
+        for col in range(left.cols):
+            var relu_multiplier = 1 if out[row, col] > 0 else 0
+            left.grad.value()[row, col] += (
+                relu_multiplier * grad.value()[row, col]
+            )
+
+
+fn log_softmax_backward(
+    out: matrix.Matrix,
+    grad: Optional[matrix.Matrix],
+    previous: List[tensor.Tensor],
+    grad_args: List[Float32],
+) raises -> None:
+    var left = previous[0]
+
+    if not grad or not left.grad:
+        raise "MissingGradError"
+
+    new_grad = grad.value() - (out.exp() * grad.value().sum().item())
+    for row in range(left.rows):
+        for col in range(left.cols):
+            left.grad.value()[row, col] += new_grad[row, col]
