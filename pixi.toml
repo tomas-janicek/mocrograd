@@ -13,6 +13,7 @@ version = "0.1.0"
 [tasks]
 tests = "mojo run run_tests.mojo"
 build_tests = "mojo build run_tests.mojo"
+train_digits = "mojo run run_digits_training.mojo"
 
 
 [dependencies]

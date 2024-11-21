@@ -27,7 +27,7 @@ struct Matrix(Copyable, Movable, KeyElement):
     ):
         self.rows = rows
         self.cols = cols
-        self.data = data
+        self.data = data^
 
     fn __init__(inout self, owned value: Float32):
         self.rows = 1
@@ -38,13 +38,13 @@ struct Matrix(Copyable, Movable, KeyElement):
     # Initialize with random values
     @staticmethod
     fn rand(rows: Int, cols: Int) -> Self:
-        var data = (UnsafePointer[Scalar[type]].alloc(rows * cols))
+        var data = UnsafePointer[Scalar[type]].alloc(rows * cols)
         random.rand(data, rows * cols)
         return Self(rows, cols, Arc(data))
 
     @staticmethod
     fn randn(rows: Int, cols: Int) -> Self:
-        var data = (UnsafePointer[Scalar[type]].alloc(rows * cols))
+        var data = UnsafePointer[Scalar[type]].alloc(rows * cols)
         random.randn(data, rows * cols)
         return Self(rows, cols, Arc(data))
 

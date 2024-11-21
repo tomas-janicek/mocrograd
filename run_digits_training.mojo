@@ -2,7 +2,7 @@ from mocrograd import datasets, nn, trainers
 
 
 fn main() raises:
-    var epochs = 20
+    var epochs = 10
     var model = nn.MLPDigits()
     var optimizer = nn.SGD(
         learning_rate=0.1, parameters_dict=model.parameters()
@@ -15,4 +15,4 @@ fn main() raises:
     )
     var data = datasets.DigitsData(length=1000)
     var dataloader = datasets.Dataloader(dataset=data^, batch_size=32)
-    trainer.fit(epochs=epochs, dataloader=dataloader)
+    trainer.fit(epochs=epochs, dataloader=dataloader^)

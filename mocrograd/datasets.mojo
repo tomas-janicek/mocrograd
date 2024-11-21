@@ -44,9 +44,11 @@ struct DataloaderIterator:
         var end = start + self.batch_size
         if end > self.length:
             end = self.length
-        var data = DataTuple(self.data[slice(start, end)], self.target[slice(start, end)])
+    
         self.current_state += self.batch_size
         self.iterations -= 1
+
+        var data = DataTuple(self.data[slice(start, end)], self.target[slice(start, end)])
         return data^
 
     fn __copyinit__(inout self, existing: Self):
@@ -68,7 +70,7 @@ struct Dataloader[DatasetT: Dataset]:
     var train_length: UInt
     var validation_length: UInt
 
-    fn __init__(inout self, batch_size: UInt, owned dataset: DatasetT) -> None:
+    fn __init__(inout self, owned dataset: DatasetT, batch_size: UInt) -> None:
         self.batch_size = batch_size
         self.dataset = dataset^
         self.train_data, self.train_target = dataset.get_train_data()

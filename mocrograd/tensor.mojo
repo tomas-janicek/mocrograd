@@ -80,14 +80,14 @@ struct Tensor(Copyable, Movable, KeyElement):
         owned grad_args: List[Float32],
         requires_grad: Bool = False,
     ):
-        self.data = data
         self.rows = data.rows
         self.cols = data.cols
+        self.data = data^
 
         self.requires_grad = requires_grad
         self._op = op
-        self._previous = prev
-        self._grad_args = grad_args
+        self._previous = prev^
+        self._grad_args = grad_args^
         self._backward = backward
 
         if self.requires_grad:
@@ -100,9 +100,9 @@ struct Tensor(Copyable, Movable, KeyElement):
         owned data: matrix.Matrix,
         requires_grad: Bool = False,
     ):
-        self.data = data
         self.rows = data.rows
         self.cols = data.cols
+        self.data = data^
 
         self.requires_grad = requires_grad
         self._op = ""

@@ -34,9 +34,8 @@ fn cross_entropy_loss(
     var data_loss = -summed_losses / n_outputs
 
     # L2 regularization
-    # var reg_loss = get_reg_loss(parameters_dict)
-    # return data_loss + reg_loss
-    return data_loss
+    var reg_loss = get_reg_loss(parameters_dict)
+    return data_loss + reg_loss
 
 
 fn get_reg_loss(
