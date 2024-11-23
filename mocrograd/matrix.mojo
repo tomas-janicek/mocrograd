@@ -53,17 +53,17 @@ struct Matrix(Copyable, Movable, KeyElement):
 
         return self[0, 0]
 
-    fn __getitem__(self, y: Int, x: Int) -> Scalar[type]:
-        return self.load(y, x)
+    fn __getitem__(self, row: Int, col: Int) -> Scalar[type]:
+        return self.load(row, col)
 
-    fn __setitem__(inout self: Matrix, y: Int, x: Int, val: Scalar[type]):
-        self.store(y, x, val)
+    fn __setitem__(inout self: Matrix, row: Int, col: Int, val: Scalar[type]):
+        self.store(row, col, val)
 
-    fn load[nelts: Int = 1](self, y: Int, x: Int) -> SIMD[type, nelts]:
-        return self.data[].load[width=nelts](y * self.cols + x)
+    fn load[nelts: Int = 1](self, row: Int, col: Int) -> SIMD[type, nelts]:
+        return self.data[].load[width=nelts](row * self.cols + col)
 
-    fn store[nelts: Int = 1](self, y: Int, x: Int, val: SIMD[type, nelts]):
-        self.data[].store(y * self.cols + x, val)
+    fn store[nelts: Int = 1](self, row: Int, col: Int, val: SIMD[type, nelts]):
+        self.data[].store(row * self.cols + col, val)
 
     fn __copyinit__(inout self, existing: Self):
         self.rows = existing.rows
@@ -142,11 +142,12 @@ struct Matrix(Copyable, Movable, KeyElement):
     fn __rmul__(self, other: Float32) -> Matrix:  # other * self
         return self * other
 
+    # TODO: Write tests to all this function on tensor side
     fn __pow__(self, other: Float32) -> Matrix:
         var out = Matrix(rows=self.rows, cols=self.cols)
         for row in range(self.rows):
             for col in range(self.cols):
-                out[row, col] = self[row, col] * other
+                out[row, col] = self[row, col] ** other
 
         return out
 

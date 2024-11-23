@@ -10,7 +10,7 @@ struct Tensor(Copyable, Movable, KeyElement):
     alias BackwardFunction = fn (
         out: matrix.Matrix,
         grad: Optional[matrix.Matrix],
-        previous: List[Tensor],
+        previousious: List[Tensor],
         grad_args: List[Float32],
     ) raises -> None
 
@@ -25,6 +25,7 @@ struct Tensor(Copyable, Movable, KeyElement):
     var _grad_args: List[Float32]
     var _backward: Tensor.BackwardFunction
 
+    # Create zeroed
     fn __init__(
         inout self: Tensor,
         rows: Int,
@@ -46,55 +47,7 @@ struct Tensor(Copyable, Movable, KeyElement):
         else:
             self.grad = None
 
-    fn __init__(
-        inout self: Tensor,
-        rows: Int,
-        cols: Int,
-        owned backward: Tensor.BackwardFunction,
-        owned op: StringLiteral,
-        owned prev: List[Tensor],
-        owned grad_args: List[Float32],
-        requires_grad: Bool = False,
-    ):
-        self.rows = rows
-        self.cols = cols
-        self.data = matrix.Matrix(self.rows, self.cols)
-
-        self.requires_grad = requires_grad
-        self._op = op
-        self._previous = prev
-        self._grad_args = grad_args
-        self._backward = backward
-
-        if self.requires_grad:
-            self.grad = matrix.Matrix(self.rows, self.cols)
-        else:
-            self.grad = None
-
-    fn __init__(
-        inout self: Tensor,
-        owned data: matrix.Matrix,
-        owned backward: Tensor.BackwardFunction,
-        owned op: StringLiteral,
-        owned prev: List[Tensor],
-        owned grad_args: List[Float32],
-        requires_grad: Bool = False,
-    ):
-        self.rows = data.rows
-        self.cols = data.cols
-        self.data = data^
-
-        self.requires_grad = requires_grad
-        self._op = op
-        self._previous = prev^
-        self._grad_args = grad_args^
-        self._backward = backward
-
-        if self.requires_grad:
-            self.grad = matrix.Matrix(self.rows, self.cols)
-        else:
-            self.grad = None
-
+    # Create form data
     fn __init__(
         inout self: Tensor,
         owned data: matrix.Matrix,
@@ -115,6 +68,7 @@ struct Tensor(Copyable, Movable, KeyElement):
         else:
             self.grad = None
 
+    # Create from scalar
     fn __init__(
         inout self: Tensor,
         owned value: Float32,
@@ -129,6 +83,57 @@ struct Tensor(Copyable, Movable, KeyElement):
         self._previous = List[Tensor]()
         self._grad_args = List[Float32]()
         self._backward = default_backward
+
+        if self.requires_grad:
+            self.grad = matrix.Matrix(self.rows, self.cols)
+        else:
+            self.grad = None
+
+    # Create zeroed with grad information
+    fn __init__(
+        inout self: Tensor,
+        rows: Int,
+        cols: Int,
+        owned backward: Tensor.BackwardFunction,
+        owned op: StringLiteral,
+        owned previous: List[Tensor],
+        owned grad_args: List[Float32],
+        requires_grad: Bool = False,
+    ):
+        self.rows = rows
+        self.cols = cols
+        self.data = matrix.Matrix(self.rows, self.cols)
+
+        self.requires_grad = requires_grad
+        self._op = op
+        self._previous = previous
+        self._grad_args = grad_args
+        self._backward = backward
+
+        if self.requires_grad:
+            self.grad = matrix.Matrix(self.rows, self.cols)
+        else:
+            self.grad = None
+
+    # Create from data with grad information
+    fn __init__(
+        inout self: Tensor,
+        owned data: matrix.Matrix,
+        owned backward: Tensor.BackwardFunction,
+        owned op: StringLiteral,
+        owned previous: List[Tensor],
+        owned grad_args: List[Float32],
+        requires_grad: Bool = False,
+    ):
+        self.rows = data.rows
+        self.cols = data.cols
+        self.data = data^
+
+        self.requires_grad = requires_grad
+        self._op = op
+        self._previous = previous^
+        self._grad_args = grad_args^
+        self._backward = backward
 
         if self.requires_grad:
             self.grad = matrix.Matrix(self.rows, self.cols)
@@ -189,7 +194,7 @@ struct Tensor(Copyable, Movable, KeyElement):
         var out = Tensor(
             data=self.data @ other.data,
             op="@",
-            prev=List(self, other),
+            previous=List(self, other),
             grad_args=List[Float32](),
             backward=grads.matmul_backward,
             requires_grad=self.requires_grad or other.requires_grad,
@@ -206,7 +211,7 @@ struct Tensor(Copyable, Movable, KeyElement):
         var out = Tensor(
             data=self.data + other.data,
             op="+",
-            prev=List(self, other),
+            previous=List(self, other),
             grad_args=List[Float32](),
             backward=grads.addition_backward,
             requires_grad=self.requires_grad or other.requires_grad,
@@ -220,7 +225,7 @@ struct Tensor(Copyable, Movable, KeyElement):
         var out = Tensor(
             data=self.data + other,
             op="+",
-            prev=List(self),
+            previous=List(self),
             grad_args=List[Float32](),
             backward=grads.addition_number_backward,
             requires_grad=self.requires_grad,
@@ -234,7 +239,7 @@ struct Tensor(Copyable, Movable, KeyElement):
         out = Tensor(
             data=self.data * other,
             op="*",
-            prev=List(self),
+            previous=List(self),
             grad_args=List(other),
             backward=grads.mul_backward,
             requires_grad=self.requires_grad,
@@ -248,7 +253,7 @@ struct Tensor(Copyable, Movable, KeyElement):
         out = Tensor(
             data=self.data**other,
             op="**",
-            prev=List(self),
+            previous=List(self),
             grad_args=List(other),
             backward=grads.power_backward,
             requires_grad=self.requires_grad,
@@ -280,7 +285,7 @@ struct Tensor(Copyable, Movable, KeyElement):
         var out = Tensor(
             data=self.data.sum(),
             op="sum",
-            prev=List(self),
+            previous=List(self),
             grad_args=List[Float32](),
             backward=grads.sum_backward,
             requires_grad=self.requires_grad,
@@ -291,7 +296,7 @@ struct Tensor(Copyable, Movable, KeyElement):
         var out = Tensor(
             data=self.data.relu(),
             op="relu",
-            prev=List(self),
+            previous=List(self),
             grad_args=List[Float32](),
             backward=grads.relu_backward,
             requires_grad=self.requires_grad,
@@ -313,7 +318,7 @@ struct Tensor(Copyable, Movable, KeyElement):
         var log_probabilities = Tensor(
             data=log_probabilities_data,
             op="log_softmax",
-            prev=List(self),
+            previous=List(self),
             grad_args=List[Float32](),
             backward=grads.log_softmax_backward,
             requires_grad=self.requires_grad,
@@ -332,11 +337,11 @@ struct Tensor(Copyable, Movable, KeyElement):
             if utils.all_in(items=tensor._previous, in_set=visited):
                 backward_topology.append(tensor^)
             else:
-                var children = tensor._previous
+                var previous = tensor._previous
                 queue.append(tensor^)
-                for child_ref in children:
-                    if child_ref[] not in visited:
-                        queue.append(child_ref[])
+                for prev_ref in previous:
+                    if prev_ref[] not in visited:
+                        queue.append(prev_ref[])
 
         self._set_grad_to_ones()
         # go one variable at a time and apply the chain rule to get its gradient
@@ -346,7 +351,7 @@ struct Tensor(Copyable, Movable, KeyElement):
                 tensor._backward(
                     out=tensor.data,
                     grad=tensor.grad,
-                    previous=tensor._previous,
+                    previousious=tensor._previous,
                     grad_args=tensor._grad_args,
                 )
 
@@ -388,7 +393,7 @@ struct Tensor(Copyable, Movable, KeyElement):
 fn default_backward(
     out: matrix.Matrix,
     grad: Optional[matrix.Matrix],
-    previous: List[Tensor],
+    previousious: List[Tensor],
     grad_args: List[Float32],
 ) raises -> None:
     return None

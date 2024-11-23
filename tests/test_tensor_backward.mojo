@@ -71,7 +71,7 @@ fn test_sum_back() raises -> None:
 
 fn test_matmul() raises -> None:
     var m1 = _create_left()
-    var m2 = _create_right()
+    var m2 = _create_left()
     var result = m1 @ m2
 
     testing.assert_equal(result.rows, 2)
