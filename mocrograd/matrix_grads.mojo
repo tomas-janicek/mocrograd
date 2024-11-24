@@ -1,24 +1,9 @@
 import math
 import random
 
-from os import Atomic
-from sys import info, simdwidthof
 from memory import memset_zero, memcpy, UnsafePointer, ArcPointer
-from algorithm import parallelize, vectorize
-from utils import BlockingScopedLock, BlockingSpinLock
 
 alias type = DType.float32
-
-alias nelts = get_simd_width()
-alias num_workers = 10
-
-
-fn get_simd_width() -> Int:
-    @parameter
-    if info.is_apple_silicon():
-        return 4 * simdwidthof[type]()
-    else:
-        return 2 * simdwidthof[type]()
 
 
 struct Matrix(Copyable, Movable, KeyElement):
@@ -78,8 +63,6 @@ struct Matrix(Copyable, Movable, KeyElement):
         return self.data[].load[width=nelts](row * self.cols + col)
 
     fn store[nelts: Int = 1](self, row: Int, col: Int, val: SIMD[type, nelts]):
-        if row >= self.rows or col >= self.cols:
-            print("IndexError")
         self.data[].store(row * self.cols + col, val)
 
     fn __copyinit__(inout self, existing: Self):
@@ -114,23 +97,10 @@ struct Matrix(Copyable, Movable, KeyElement):
             cols=other.cols,
         )
 
-        @parameter
-        fn _matmul_row(m: Int):
+        for m in range(out.rows):
             for k in range(self.cols):
-
-                @parameter
-                fn _matmul[nelts: Int](n: Int):
-                    out.store[nelts](
-                        m,
-                        n,
-                        out.load[nelts](m, n)
-                        + self[m, k] * other.load[nelts](k, n),
-                    )
-
-                vectorize[_matmul, nelts](size=out.cols)
-
-        parallelize[_matmul_row](out.rows, num_workers)
-
+                for n in range(out.cols):
+                    out[m, n] += self[m, k] * other[k, n]
         return out
 
     fn __rmatmul__(self, other: Matrix) raises -> Matrix:  # other @ self
@@ -142,21 +112,9 @@ struct Matrix(Copyable, Movable, KeyElement):
 
         var out = Matrix(rows=self.rows, cols=self.cols)
 
-        @parameter
-        fn _addition_row(row: Int):
-            @parameter
-            fn _addition[nelts: Int](col: Int):
-                # out[row, col] = self[row, col] + other[row, col]
-                out.store[nelts](
-                    row,
-                    col,
-                    self.load[nelts](row, col) + other.load[nelts](row, col),
-                )
-
-            vectorize[_addition, nelts](size=out.cols)
-
-        parallelize[_addition_row](out.rows, num_workers)
-
+        for row in range(self.rows):
+            for col in range(self.cols):
+                out[row, col] = self[row, col] + other[row, col]
         return out
 
     fn __radd__(self, other: Matrix) raises -> Matrix:  # other + self
@@ -165,21 +123,9 @@ struct Matrix(Copyable, Movable, KeyElement):
     fn __add__(self, other: Float32) raises -> Matrix:
         var out = Matrix(rows=self.rows, cols=self.cols)
 
-        @parameter
-        fn _addition_row(row: Int):
-            @parameter
-            fn _addition[nelts: Int](col: Int):
-                # out[row, col] = self[row, col] + other
-                out.store[nelts](
-                    row,
-                    col,
-                    self.load[nelts](row, col) + other,
-                )
-
-            vectorize[_addition, nelts](size=out.cols)
-
-        parallelize[_addition_row](out.rows, num_workers)
-
+        for row in range(self.rows):
+            for col in range(self.cols):
+                out[row, col] = self[row, col] + other
         return out
 
     fn __radd__(self, other: Float32) raises -> Matrix:  # other + self
@@ -187,21 +133,9 @@ struct Matrix(Copyable, Movable, KeyElement):
 
     fn __mul__(self, other: Float32) -> Matrix:
         var out = Matrix(rows=self.rows, cols=self.cols)
-
-        @parameter
-        fn _mul_row(row: Int):
-            @parameter
-            fn _mul[nelts: Int](col: Int):
-                # out[row, col] = self[row, col] * other
-                out.store[nelts](
-                    row,
-                    col,
-                    self.load[nelts](row, col) * other,
-                )
-
-            vectorize[_mul, nelts](size=out.cols)
-
-        parallelize[_mul_row](out.rows, num_workers)
+        for row in range(self.rows):
+            for col in range(self.cols):
+                out[row, col] = self[row, col] * other
 
         return out
 
@@ -211,21 +145,9 @@ struct Matrix(Copyable, Movable, KeyElement):
     # TODO: Write tests to all this function on tensor side
     fn __pow__(self, other: Float32) -> Matrix:
         var out = Matrix(rows=self.rows, cols=self.cols)
-
-        @parameter
-        fn _pow_row(row: Int):
-            @parameter
-            fn _pow[nelts: Int](col: Int):
-                # out[row, col] = self[row, col] ** other
-                out.store[nelts](
-                    row,
-                    col,
-                    self.load[nelts](row, col) ** other,
-                )
-
-            vectorize[_pow, nelts](size=out.cols)
-
-        parallelize[_pow_row](out.rows, num_workers)
+        for row in range(self.rows):
+            for col in range(self.cols):
+                out[row, col] = self[row, col] ** other
 
         return out
 
@@ -251,90 +173,44 @@ struct Matrix(Copyable, Movable, KeyElement):
         return other * self**-1
 
     fn sum(self) -> Matrix:
-        var total_sum = Atomic(Float32(0.0))
-        var num_workers = self.rows
-
-        @parameter
-        fn _sums_row(row: Int):
+        var total_sum = Float32(0.0)
+        for row in range(self.rows):
             for col in range(self.cols):
-                _ = total_sum.fetch_add(self[row, col])
+                total_sum += self[row, col]
 
-        parallelize[_sums_row](self.rows, num_workers)
-
-        var out = Matrix(total_sum.load())
+        var out = Matrix(total_sum)
         return out
 
     fn max(self) -> Matrix:
-        var max_value = Atomic(Float32.MIN)
-        var num_workers = self.rows
-
-        @parameter
-        fn _max_row(row: Int):
+        var max_value = Float32(0.0)
+        for row in range(self.rows):
             for col in range(self.cols):
-                _ = max_value.max(self[row, col])
+                max_value = max(max_value, self[row, col])
 
-        parallelize[_max_row](self.rows, num_workers)
-
-        var out = Matrix(max_value.load())
+        var out = Matrix(max_value)
         return out
 
     fn relu(self) -> Matrix:
         var out = Matrix(rows=self.rows, cols=self.cols)
-
-        @parameter
-        fn _relu_row(row: Int):
-            @parameter
-            fn _relu[nelts: Int](col: Int):
-                # out[row, col] = max(self[row, col], 0)
-                out.store[nelts](
-                    row,
-                    col,
-                    max(self.load[nelts](row, col), 0),
-                )
-
-            vectorize[_relu, nelts](size=out.cols)
-
-        parallelize[_relu_row](out.rows, num_workers)
+        for row in range(out.rows):
+            for col in range(out.cols):
+                out[row, col] = max(self[row, col], 0)
 
         return out
 
     fn exp(self) -> Matrix:
         var out = Matrix(rows=self.rows, cols=self.cols)
-
-        @parameter
-        fn _exp_row(row: Int):
-            @parameter
-            fn _exp[nelts: Int](col: Int):
-                # out[row, col] = math.exp(self[row, col])
-                out.store[nelts](
-                    row,
-                    col,
-                    math.exp(self.load[nelts](row, col)),
-                )
-
-            vectorize[_exp, nelts](size=out.cols)
-
-        parallelize[_exp_row](out.rows, num_workers)
+        for row in range(self.rows):
+            for col in range(self.cols):
+                out[row, col] = math.exp(self[row, col])
 
         return out
 
     fn log(self) -> Matrix:
         var out = Matrix(rows=self.rows, cols=self.cols)
-
-        @parameter
-        fn _log_row(row: Int):
-            @parameter
-            fn _log[nelts: Int](col: Int):
-                # out[row, col] = math.log(self[row, col])
-                out.store[nelts](
-                    row,
-                    col,
-                    math.log(self.load[nelts](row, col)),
-                )
-
-            vectorize[_log, nelts](size=out.cols)
-
-        parallelize[_log_row](out.rows, num_workers)
+        for row in range(self.rows):
+            for col in range(self.cols):
+                out[row, col] = math.log(self[row, col])
 
         return out
 

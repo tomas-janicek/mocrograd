@@ -1,7 +1,5 @@
 import testing
 
-from memory import Arc
-
 from mocrograd import tensor, grads, matrix
 
 

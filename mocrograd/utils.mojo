@@ -1,5 +1,4 @@
 from collections import Set
-from memory import Arc
 
 
 fn all_in[T: KeyElement](items: List[T], *, in_set: Set[T]) -> Bool:

@@ -1,10 +1,6 @@
 [project]
 authors = ["Tomas Janicek <tomas.janicek@redampsecurity.com>"]
-channels = [
-    "conda-forge",
-    "https://conda.modular.com/max",
-    "https://repo.prefix.dev/mojo-community",
-]
+channels = ["conda-forge", "https://conda.modular.com/max-nightly"]
 description = "Add a short description here"
 name = "mocrograd"
 platforms = ["linux-aarch64", "osx-arm64"]

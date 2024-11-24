@@ -1,3 +1,5 @@
+import time
+
 from mocrograd import nn, tensor, datasets
 
 
@@ -24,6 +26,7 @@ struct Trainer[ModuleT: nn.Module, OptimizerT: nn.Optimizer]:
         epochs: UInt,
         dataloader: datasets.Dataloader,
     ) raises -> None:
+        var start = time.perf_counter_ns()
         for epoch in range(epochs):
             loss, accuracy = self.do_training(dataloader)
             print(
@@ -38,6 +41,10 @@ struct Trainer[ModuleT: nn.Module, OptimizerT: nn.Optimizer]:
                     epoch, loss, accuracy * 100
                 )
             )
+
+        var end = time.perf_counter_ns()
+        var duration_in_seconds = (end - start) * 1e-9
+        print(String("Training took {} seconds.").format(duration_in_seconds))
 
     fn do_training(
         self, dataloader: datasets.Dataloader

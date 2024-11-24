@@ -71,7 +71,7 @@ fn test_sum_back() raises -> None:
 
 fn test_matmul() raises -> None:
     var m1 = _create_left()
-    var m2 = _create_left()
+    var m2 = _create_right()
     var result = m1 @ m2
 
     testing.assert_equal(result.rows, 2)
@@ -98,9 +98,9 @@ fn test_matmul_backward() raises -> None:
     testing.assert_equal(m1.grad.value()[1, 2], 9.0)
 
     testing.assert_true(m2.grad)
-    testing.assert_equal(m2.grad.value()[0, 0], 5.0)
-    testing.assert_equal(m2.grad.value()[1, 0], 7.0)
     testing.assert_equal(m2.grad.value()[2, 0], 9.0)
+    testing.assert_equal(m2.grad.value()[1, 0], 7.0)
+    testing.assert_equal(m2.grad.value()[0, 0], 5.0)
 
 
 fn test_addition() raises -> None:

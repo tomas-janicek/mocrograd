@@ -347,13 +347,12 @@ struct Tensor(Copyable, Movable, KeyElement):
         # go one variable at a time and apply the chain rule to get its gradient
         for tensor_ref in reversed(backward_topology):
             var tensor = tensor_ref[]
-            if tensor._op != "":
-                tensor._backward(
-                    out=tensor.data,
-                    grad=tensor.grad,
-                    previousious=tensor._previous,
-                    grad_args=tensor._grad_args,
-                )
+            tensor._backward(
+                out=tensor.data,
+                grad=tensor.grad,
+                previousious=tensor._previous,
+                grad_args=tensor._grad_args,
+            )
 
     fn _set_grad_to_ones(self) raises -> None:
         if not self.grad:

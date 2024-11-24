@@ -1,4 +1,5 @@
 from collections import Optional
+from algorithm import parallelize, vectorize
 
 from mocrograd import tensor, matrix
 
@@ -15,9 +16,21 @@ fn sum_backward(
         raise "MissingGradError"
 
     var out_grad = grad.value()[0, 0]
-    for row in range(left.rows):
-        for col in range(left.cols):
-            left.grad.value()[row, col] += out_grad
+
+    @parameter
+    fn _sum_backward_row(row: Int):
+        @parameter
+        fn _sum_backward[nelts: Int](col: Int):
+            # left.grad[row, col] += out_grad
+            left.grad.value().store[nelts](
+                row,
+                col,
+                left.grad.value().load[nelts](row, col) + out_grad,
+            )
+
+        vectorize[_sum_backward, matrix.nelts](size=left.cols)
+
+    parallelize[_sum_backward_row](left.rows, matrix.num_workers)
 
 
 fn addition_backward(
@@ -34,13 +47,30 @@ fn addition_backward(
     if not left.grad and not right.grad:
         raise "MissingGradError"
 
-    for row in range(left.rows):
-        for col in range(left.cols):
-            var grad_value = grad.value()[row, col]
+    @parameter
+    fn _addition_backward_row(row: Int):
+        @parameter
+        fn _addition_backward[nelts: Int](col: Int):
             if left.grad:
-                left.grad.value()[row, col] += grad_value
+                # left.grad[row, col] += grad[row, col]
+                left.grad.value().store[nelts](
+                    row,
+                    col,
+                    left.grad.value().load[nelts](row, col)
+                    + grad.value().load[nelts](row, col),
+                )
             if right.grad:
-                right.grad.value()[row, col] += grad_value
+                # right.grad[row, col] += grad[row, col]
+                right.grad.value().store[nelts](
+                    row,
+                    col,
+                    right.grad.value().load[nelts](row, col)
+                    + grad.value().load[nelts](row, col),
+                )
+
+        vectorize[_addition_backward, matrix.nelts](size=left.cols)
+
+    parallelize[_addition_backward_row](left.rows, matrix.num_workers)
 
 
 fn addition_number_backward(
@@ -54,10 +84,21 @@ fn addition_number_backward(
     if not grad or not left.grad:
         raise "MissingGradError"
 
-    for row in range(left.rows):
-        for col in range(left.cols):
-            var grad_value = grad.value()[row, col]
-            left.grad.value()[row, col] += grad_value
+    @parameter
+    fn _addition_backward_row(row: Int):
+        @parameter
+        fn _addition_backward[nelts: Int](col: Int):
+            # left.grad[row, col] += grad[row, col]
+            left.grad.value().store[nelts](
+                row,
+                col,
+                left.grad.value().load[nelts](row, col)
+                + grad.value().load[nelts](row, col),
+            )
+
+        vectorize[_addition_backward, matrix.nelts](size=left.cols)
+
+    parallelize[_addition_backward_row](left.rows, matrix.num_workers)
 
 
 fn matmul_backward(
@@ -74,13 +115,32 @@ fn matmul_backward(
     if not left.grad and not right.grad:
         raise "MissingGradError"
 
-    for m in range(left.rows):
+    @parameter
+    fn _matmul_backward_row(m: Int):
         for k in range(left.cols):
-            for n in range(right.cols):
+
+            @parameter
+            fn _matmul_backward[nelts: Int](n: Int):
                 if left.grad:
-                    left.grad.value()[m, k] += right[k, n] * grad.value()[m, n]
+                    # left.grad[m, k] += right[k, n] * grad[m, n]
+                    left.grad.value().store[nelts](
+                        m,
+                        k,
+                        left.grad.value().load[nelts](m, k)
+                        + right[k, n] * grad.value().load[nelts](m, n),
+                    )
                 if right.grad:
-                    right.grad.value()[k, n] += left[m, k] * grad.value()[m, n]
+                    # right.grad[k, n] += left[m, k] * grad[m, n]
+                    right.grad.value().store[nelts](
+                        k,
+                        n,
+                        right.grad.value().load[nelts](k, n)
+                        + left[m, k] * grad.value().load[nelts](m, n),
+                    )
+
+            vectorize[_matmul_backward, matrix.nelts](size=out.cols)
+
+    parallelize[_matmul_backward_row](out.rows, matrix.num_workers)
 
 
 fn power_backward(
@@ -95,11 +155,22 @@ fn power_backward(
     if not grad or not left.grad:
         raise "MissingGradError"
 
-    for row in range(left.rows):
-        for col in range(left.cols):
-            left.grad.value()[row, col] += (
-                power * left[row, col] ** (power - 1)
-            ) * grad.value()[row, col]
+    @parameter
+    fn _power_backward_row(row: Int):
+        @parameter
+        fn _power_backward[nelts: Int](col: Int):
+            # left.grad[row, col] += (power * left[row, col] ** (power - 1)) * grad[row, col]
+            left.grad.value().store[nelts](
+                row,
+                col,
+                left.grad.value().load[nelts](row, col)
+                + (power * left.data.load[nelts](row, col) ** (power - 1))
+                * grad.value().load[nelts](row, col),
+            )
+
+        vectorize[_power_backward, matrix.nelts](size=left.cols)
+
+    parallelize[_power_backward_row](left.rows, matrix.num_workers)
 
 
 fn mul_backward(
@@ -114,9 +185,21 @@ fn mul_backward(
     if not grad or not left.grad:
         raise "MissingGradError"
 
-    for row in range(left.rows):
-        for col in range(left.cols):
-            left.grad.value()[row, col] += multiplier * grad.value()[row, col]
+    @parameter
+    fn _mul_backward_row(row: Int):
+        @parameter
+        fn _mul_backward[nelts: Int](col: Int):
+            # left.grad[row, col] += multiplier * grad[row, col]
+            left.grad.value().store[nelts](
+                row,
+                col,
+                left.grad.value().load[nelts](row, col)
+                + multiplier * grad.value().load[nelts](row, col),
+            )
+
+        vectorize[_mul_backward, matrix.nelts](size=left.cols)
+
+    parallelize[_mul_backward_row](left.rows, matrix.num_workers)
 
 
 fn relu_backward(
@@ -130,12 +213,22 @@ fn relu_backward(
     if not grad or not left.grad:
         raise "MissingGradError"
 
-    for row in range(left.rows):
-        for col in range(left.cols):
+    @parameter
+    fn _relu_backward_row(row: Int):
+        @parameter
+        fn _relu_backward[nelts: Int](col: Int):
             var relu_multiplier = 1 if out[row, col] > 0 else 0
-            left.grad.value()[row, col] += (
-                relu_multiplier * grad.value()[row, col]
+            # left.grad[row, col] += relu_multiplier * grad[row, col]
+            left.grad.value().store[nelts](
+                row,
+                col,
+                left.grad.value().load[nelts](row, col)
+                + relu_multiplier * grad.value().load[nelts](row, col),
             )
+
+        vectorize[_relu_backward, matrix.nelts](size=left.cols)
+
+    parallelize[_relu_backward_row](left.rows, matrix.num_workers)
 
 
 fn log_softmax_backward(
@@ -150,6 +243,19 @@ fn log_softmax_backward(
         raise "MissingGradError"
 
     new_grad = grad.value() - (out.exp() * grad.value().sum().item())
-    for row in range(left.rows):
-        for col in range(left.cols):
-            left.grad.value()[row, col] += new_grad[row, col]
+
+    @parameter
+    fn _log_softmax_backward_row(row: Int):
+        @parameter
+        fn _log_softmax_backward[nelts: Int](col: Int):
+            # left.grad[row, col] += grad[row, col]
+            left.grad.value().store[nelts](
+                row,
+                col,
+                left.grad.value().load[nelts](row, col)
+                + new_grad.load[nelts](row, col),
+            )
+
+        vectorize[_log_softmax_backward, matrix.nelts](size=left.cols)
+
+    parallelize[_log_softmax_backward_row](left.rows, matrix.num_workers)

@@ -5,17 +5,21 @@ from mocrograd import tensor, data
 
 alias DataTuple = Tuple[List[tensor.Tensor], List[tensor.Tensor]]
 
+
 trait Dataset:
     fn get_train_data(
         self,
-    ) -> Tuple[List[tensor.Tensor], List[tensor.Tensor]]: ...
+    ) -> Tuple[List[tensor.Tensor], List[tensor.Tensor]]:
+        ...
 
     fn get_validation_data(
         self,
-    ) -> Tuple[List[tensor.Tensor], List[tensor.Tensor]]: ...
+    ) -> Tuple[List[tensor.Tensor], List[tensor.Tensor]]:
+        ...
 
     fn __moveinit__(inout self, owned existing: Self):
         ...
+
 
 struct DataloaderIterator:
     var data: List[tensor.Tensor]
@@ -25,7 +29,12 @@ struct DataloaderIterator:
     var length: UInt
     var iterations: UInt
 
-    fn __init__(inout self, owned data: List[tensor.Tensor], owned target: List[tensor.Tensor], batch_size: UInt):
+    fn __init__(
+        inout self,
+        owned data: List[tensor.Tensor],
+        owned target: List[tensor.Tensor],
+        batch_size: UInt,
+    ):
         self.data = data^
         self.target = target^
         self.current_state = 0
@@ -38,18 +47,23 @@ struct DataloaderIterator:
 
     fn __len__(self) -> UInt:
         return self.iterations
-    
+
     fn __next__(inout self) -> DataTuple:
         var start = self.current_state
         var end = start + self.batch_size
         if end > self.length:
             end = self.length
-    
+
         self.current_state += self.batch_size
         self.iterations -= 1
 
-        var data = DataTuple(self.data[slice(start, end)], self.target[slice(start, end)])
+        var data = DataTuple(
+            self.data[slice(start, end)], self.target[slice(start, end)]
+        )
         return data^
+
+    fn __has_next__(self) -> Bool:
+        return self.__len__() > 0
 
     fn __copyinit__(inout self, existing: Self):
         self.data = existing.data
@@ -73,8 +87,10 @@ struct Dataloader[DatasetT: Dataset]:
     fn __init__(inout self, owned dataset: DatasetT, batch_size: UInt) -> None:
         self.batch_size = batch_size
         self.dataset = dataset^
-        self.train_data, self.train_target = dataset.get_train_data()
-        self.validation_data, self.validation_target = dataset.get_validation_data()
+        self.train_data, self.train_target = self.dataset.get_train_data()
+        self.validation_data, self.validation_target = (
+            self.dataset.get_validation_data()
+        )
 
         self.train_length = len(self.train_data)
         self.validation_length = len(self.validation_data)
@@ -82,12 +98,20 @@ struct Dataloader[DatasetT: Dataset]:
     fn get_train_dataloader(
         self,
     ) -> DataloaderIterator:
-        return DataloaderIterator(data=self.train_data, target=self.train_target, batch_size=self.batch_size)
+        return DataloaderIterator(
+            data=self.train_data,
+            target=self.train_target,
+            batch_size=self.batch_size,
+        )
 
     fn get_validation_dataloader(
         self,
-    ) ->DataloaderIterator:
-        return DataloaderIterator(data=self.validation_data, target=self.validation_target, batch_size=self.batch_size)
+    ) -> DataloaderIterator:
+        return DataloaderIterator(
+            data=self.validation_data,
+            target=self.validation_target,
+            batch_size=self.batch_size,
+        )
 
 
 struct DigitsData(Dataset):
@@ -101,8 +125,10 @@ struct DigitsData(Dataset):
         self.length = length
         matrix_data, matrix_target = data.load_digits(length)
 
-        train_data, validation_data, train_target, validation_target = train_validation_split(
-            matrix_data, matrix_target, validation_size=0.2
+        train_data, validation_data, train_target, validation_target = (
+            train_validation_split(
+                matrix_data, matrix_target, validation_size=0.2
+            )
         )
 
         self.train_data = _create_tensors(train_data)
@@ -129,8 +155,15 @@ struct DigitsData(Dataset):
 
 
 fn train_validation_split(
-    data: List[matrix.Matrix], target: List[matrix.Matrix], validation_size: Float16
-    ) raises -> Tuple[List[matrix.Matrix], List[matrix.Matrix], List[matrix.Matrix], List[matrix.Matrix]]:
+    data: List[matrix.Matrix],
+    target: List[matrix.Matrix],
+    validation_size: Float16,
+) raises -> Tuple[
+    List[matrix.Matrix],
+    List[matrix.Matrix],
+    List[matrix.Matrix],
+    List[matrix.Matrix],
+]:
     if len(data) != len(target):
         raise "InvalidDataTargetPair"
     var validation_len = int(len(data) * validation_size)
@@ -138,11 +171,17 @@ fn train_validation_split(
 
     var train_slice = slice(train_length)
     var validation_slice = slice(train_length, train_length + validation_len)
-    return data[train_slice], data[validation_slice], target[train_slice], target[validation_slice]
+    return (
+        data[train_slice],
+        data[validation_slice],
+        target[train_slice],
+        target[validation_slice],
+    )
 
 
-
-fn _create_tensors(borrowed matrices: List[matrix.Matrix]) -> List[tensor.Tensor]:
+fn _create_tensors(
+    borrowed matrices: List[matrix.Matrix],
+) -> List[tensor.Tensor]:
     var tensors = List[tensor.Tensor]()
     for matrix in matrices:
         var new_tensor = tensor.Tensor(matrix[])
