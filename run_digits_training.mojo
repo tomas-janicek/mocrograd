@@ -2,7 +2,7 @@ from mocrograd import datasets, nn, trainers
 
 
 fn main() raises:
-    var epochs = 20
+    var epochs = 1
     var model = nn.MLPDigitsBigger()
     var optimizer = nn.SGD(
         learning_rate=0.01, parameters_dict=model.parameters()

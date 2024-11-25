@@ -10,7 +10,7 @@ from utils import BlockingScopedLock, BlockingSpinLock
 alias type = DType.float32
 
 alias nelts = get_simd_width()
-alias num_workers = 10
+alias num_workers = 256
 
 
 fn get_simd_width() -> Int:
