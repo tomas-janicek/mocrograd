@@ -31,23 +31,25 @@ Training with full optimization (256 workers): 82.234509 seconds
 
 ### Run Pod
 
+NVidia RTX 4000 Ada uses nelts with value 16.
+
 #### Network size 64 -> 64 -> 32 -> 10
 
-Training without any optimization: 
-Training with full optimization (10 workers): 
-Training with full optimization (64 workers): 
-Training with full optimization (256 workers): 
+Training without any optimization: 1.21092444 seconds
+Training with full optimization (10 workers): 2.0891751860000003 seconds
+Training with full optimization (64 workers): 4.941721467000001 seconds
+Training with full optimization (256 workers): 12.003985395 seconds
 
 #### Network size 64 -> 8192 -> 4096 -> 2048 -> 10
 
-Training without any optimization: 
-Training with full optimization (10 workers): 
-Training with full optimization (64 workers): 
-Training with full optimization (256 workers): 
+Training without any optimization: 398.27412804600004 seconds
+Training with full optimization (10 workers): 341.15016408900004 seconds
+Training with full optimization (64 workers): 346.273877286 seconds
+Training with full optimization (256 workers): 367.12238372800005
 
 #### Network size 64 [(-> 256) * 29] -> 10 (total of 30 layers)
 
-Training without any optimization: 
-Training with full optimization (10 workers): 
-Training with full optimization (64 workers): 
-Training with full optimization (256 workers): 
+Training without any optimization: 36.638341556 seconds
+Training with full optimization (10 workers): 65.684224473 seconds
+Training with full optimization (64 workers): 84.700366343 seconds
+Training with full optimization (256 workers): 139.984655003 second
