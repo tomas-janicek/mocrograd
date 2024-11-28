@@ -3,11 +3,11 @@ from mocrograd import datasets, nn, trainers
 
 fn main() raises:
     var epochs = 1
-    var model = nn.MLPDigitsBigger()
+    var model = nn.MLPDigitsLonger()
     var optimizer = nn.SGD(
         learning_rate=0.01, parameters_dict=model.parameters()
     )
-    var trainer = trainers.Trainer[nn.MLPDigitsBigger, nn.SGD](
+    var trainer = trainers.Trainer[nn.MLPDigitsLonger, nn.SGD](
         model=model^,
         optimizer=optimizer^,
         loss_function=nn.cross_entropy_loss,

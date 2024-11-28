@@ -6,7 +6,7 @@ from mocrograd import tensor, data
 alias DataTuple = Tuple[List[tensor.Tensor], List[tensor.Tensor]]
 
 
-trait Dataset:
+trait Dataset(Movable):
     fn get_train_data(
         self,
     ) -> Tuple[List[tensor.Tensor], List[tensor.Tensor]]:
@@ -21,7 +21,7 @@ trait Dataset:
         ...
 
 
-struct DataloaderIterator:
+struct DataloaderIterator(Sized, Copyable):
     var data: List[tensor.Tensor]
     var target: List[tensor.Tensor]
     var current_state: UInt
@@ -40,12 +40,12 @@ struct DataloaderIterator:
         self.current_state = 0
         self.length = len(self.data)
         self.batch_size = batch_size
-        self.iterations = self.length // self.batch_size
+        self.iterations = (self.length + self.batch_size - 1) // self.batch_size
 
     fn __iter__(self) -> Self:
         return self
 
-    fn __len__(self) -> UInt:
+    fn __len__(self) -> Int:
         return self.iterations
 
     fn __next__(inout self) -> DataTuple:

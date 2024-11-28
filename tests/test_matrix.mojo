@@ -43,7 +43,7 @@ fn test_copy() raises:
     testing.assert_equal(m2[1, 2], 6.0)
 
 
-fn test_rand() raises -> None:
+fn test_rand() raises:
     var t = matrix.Matrix.rand(3, 3)
 
     testing.assert_not_equal(t[0, 0], 0.0)
@@ -51,7 +51,7 @@ fn test_rand() raises -> None:
     testing.assert_not_equal(t[2, 2], 0.0)
 
 
-fn test_hash() raises -> None:
+fn test_hash() raises:
     var m = matrix.Matrix.rand(3, 3)
     var s = Set(m)
 
@@ -63,6 +63,23 @@ fn test_hash() raises -> None:
     s.add(m)
 
     testing.assert_equal(len(s), 1)
+
+
+############################
+# Tests for Math Functions #
+############################
+
+
+fn test_log() raises:
+    ...
+
+
+fn test_exp() raises:
+    ...
+
+
+fn test_max() raises:
+    ...
 
 
 fn test_argmax() raises:
@@ -87,12 +104,16 @@ fn test_argmax_row() raises:
     testing.assert_equal(max_index, 1)
 
 
-fn run_tests() raises -> None:
+fn run_tests() raises:
     test_get_set()
     test_move()
     test_copy()
     test_rand()
     test_hash()
+    # Tests for Math Functions
+    test_log()
+    test_exp()
+    test_max()
     test_argmax()
     test_argmax_row()
 

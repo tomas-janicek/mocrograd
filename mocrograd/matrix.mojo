@@ -10,7 +10,7 @@ from utils import BlockingScopedLock, BlockingSpinLock
 alias type = DType.float32
 
 alias nelts = get_simd_width()
-alias num_workers = 256
+alias num_workers = 10
 
 
 fn get_simd_width() -> Int:
@@ -208,7 +208,6 @@ struct Matrix(Copyable, Movable, KeyElement):
     fn __rmul__(self, other: Float32) -> Matrix:  # other * self
         return self * other
 
-    # TODO: Write tests to all this function on tensor side
     fn __pow__(self, other: Float32) -> Matrix:
         var out = Matrix(rows=self.rows, cols=self.cols)
 

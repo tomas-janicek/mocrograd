@@ -201,9 +201,6 @@ struct Tensor(Copyable, Movable, KeyElement):
         )
         return out
 
-    fn __rmatmul__(self, other: Tensor) raises -> Tensor:  # other @ self
-        return other @ self
-
     fn __add__(self, other: Tensor) raises -> Tensor:
         if (self.rows != other.rows) or (self.cols != other.cols):
             raise "DimensionsError"
@@ -217,9 +214,6 @@ struct Tensor(Copyable, Movable, KeyElement):
             requires_grad=self.requires_grad or other.requires_grad,
         )
         return out
-
-    fn __radd__(self, other: Tensor) raises -> Tensor:  # other + self
-        return self + other
 
     fn __add__(self, other: Float32) raises -> Tensor:
         var out = Tensor(
@@ -265,9 +259,6 @@ struct Tensor(Copyable, Movable, KeyElement):
 
     fn __sub__(self, other: Tensor) raises -> Tensor:  # self - other
         return self + (-other)
-
-    fn __rsub__(self, other: Tensor) raises -> Tensor:  # other - self
-        return other + (-self)
 
     fn __sub__(self, other: Float32) raises -> Tensor:  # self - other
         return self + (-other)
