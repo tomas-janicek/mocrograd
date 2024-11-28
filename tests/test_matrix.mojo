@@ -71,15 +71,40 @@ fn test_hash() raises:
 
 
 fn test_log() raises:
-    ...
+    var m = matrix.Matrix(1, 3)
+    m[0, 0] = 0.0
+    m[0, 1] = 1.0
+    m[0, 2] = 10.0
+
+    var log = m.log()
+
+    testing.assert_equal(log[0, 0], Float32.MIN)
+    testing.assert_equal(log[0, 1], 0.0)
+    testing.assert_almost_equal(log[0, 2], 2.3025, atol=1e-4)
 
 
 fn test_exp() raises:
-    ...
+    var m = matrix.Matrix(1, 3)
+    m[0, 0] = 0.0
+    m[0, 1] = 1.0
+    m[0, 2] = 10.0
+
+    var exp = m.exp()
+
+    testing.assert_equal(exp[0, 0], 1.0)
+    testing.assert_almost_equal(exp[0, 1], 2.7182, atol=1e-4)
+    testing.assert_almost_equal(exp[0, 2], 22026.465, atol=1e-4)
 
 
 fn test_max() raises:
-    ...
+    var m = matrix.Matrix(1, 3)
+    m[0, 0] = 0.0
+    m[0, 1] = -1.0
+    m[0, 2] = 1.0
+
+    var max = m.max()
+
+    testing.assert_equal(max.item(), 1.0)
 
 
 fn test_argmax() raises:
