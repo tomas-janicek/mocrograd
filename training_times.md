@@ -25,9 +25,9 @@ Training with full optimization (256 workers): 634.539341 seconds
 #### Network size 64 [(-> 256) * 29] -> 10 (total of 30 layers)
 
 Training without any optimization: 57.613562 seconds
-Training with full optimization (10 workers): 65.0267 seconds
-Training with full optimization (64 workers): 67.23092600000001 seconds
-Training with full optimization (256 workers): 82.234509 seconds
+Training with full optimization (10 workers): 58.414107 seconds
+Training with full optimization (64 workers): 60.850778000000005 seconds
+Training with full optimization (256 workers): 74.03118400000001 seconds
 
 ### Run Pod
 

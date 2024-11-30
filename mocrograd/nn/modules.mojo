@@ -7,6 +7,7 @@ from . import init
 
 alias ParametersDict = Dict[String, List[tensor.Tensor]]
 
+
 trait Module:
     fn parameters(self) raises -> ParametersDict:
         ...
@@ -21,7 +22,7 @@ trait Module:
         ...
 
 
-struct Linear:
+struct Linear(CollectionElement):
     var weights: tensor.Tensor
     var biases: tensor.Tensor
 
@@ -35,9 +36,7 @@ struct Linear:
             self.weights = init.create_normal_weights(
                 rows=out_features, cols=in_features
             )
-            self.biases = init.create_normal_weights(
-                rows=out_features, cols=1
-            )
+            self.biases = init.create_normal_weights(rows=out_features, cols=1)
         elif initialization == "kaiming":
             self.weights = init.create_kaiming_normal_weighta(
                 rows=out_features, cols=in_features
@@ -53,7 +52,11 @@ struct Linear:
 
     fn parameters(self) -> List[tensor.Tensor]:
         return List(self.weights, self.biases)
-    
+
     fn __moveinit__(inout self, owned existing: Self):
         self.weights = existing.weights^
         self.biases = existing.biases^
+
+    fn __copyinit__(inout self, existing: Self):
+        self.weights = existing.weights
+        self.biases = existing.biases
