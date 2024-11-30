@@ -3,7 +3,7 @@ authors = ["Tomas Janicek <tomas.janicek@redampsecurity.com>"]
 channels = ["conda-forge", "https://conda.modular.com/max-nightly"]
 description = "Add a short description here"
 name = "mocrograd"
-platforms = ["linux-aarch64", "osx-arm64"]
+platforms = ["linux-aarch64", "osx-arm64", "linux-64"]
 
 version = "0.1.0"
 

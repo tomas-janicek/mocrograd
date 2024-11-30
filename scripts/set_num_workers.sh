@@ -17,4 +17,4 @@ if [ ! -f "$file" ]; then
 fi
 
 # Use sed to replace the line
-sed -i '' -E "s/alias num_workers = [0-9]+/alias num_workers = $num_workers/" "$file"
+sed -i.bak -E "s/alias num_workers = [0-9]+/alias num_workers = $num_workers/" "$file"

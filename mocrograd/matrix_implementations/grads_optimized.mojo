@@ -100,7 +100,7 @@ fn matmul_backward(
 
             vectorize[_matmul_backward, matrix.nelts](size=out.cols)
 
-    parallelize[_matmul_backward_row](out.rows, out.rows)
+    parallelize[_matmul_backward_row](out.rows, matrix.num_workers)
 
 
 fn power_backward(

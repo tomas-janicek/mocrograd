@@ -27,15 +27,15 @@ fn _train_digits_on_model[
         loss_function=nn.cross_entropy_loss,
         accuracy_function=nn.calculate_accuracy,
     )
-    var data = datasets.DigitsData(length=1)
+    var data = datasets.DigitsData(length=100)
     var dataloader = datasets.Dataloader(dataset=data^, batch_size=32)
     trainer.fit(epochs=epochs, dataloader=dataloader^)
 
 
 fn main() raises:
-    print("Training on Normal Model")
-    train_digits("normal", 5)
-    print("Training on Longer Model")
-    train_digits("longer", 5)
-    print("Training on Bigger Model")
-    train_digits("bigger", 5)
+    print("\nTraining on Normal Model")
+    train_digits("normal", 1)
+    print("\nTraining on Longer Model")
+    train_digits("longer", 1)
+    print("\nTraining on Bigger Model")
+    train_digits("bigger", 1)

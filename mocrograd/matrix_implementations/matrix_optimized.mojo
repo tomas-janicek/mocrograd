@@ -10,6 +10,7 @@ from utils import BlockingScopedLock, BlockingSpinLock
 alias type = DType.float32
 
 alias nelts = get_simd_width()
+alias num_workers = 1
 
 
 fn get_simd_width() -> Int:
@@ -126,7 +127,7 @@ struct Matrix(Copyable, Movable, KeyElement):
 
                 vectorize[_matmul, nelts](size=out.cols)
 
-        parallelize[_matmul_row](out.rows, out.rows)
+        parallelize[_matmul_row](out.rows, num_workers)
 
         return out
 
