@@ -20,7 +20,10 @@
             "request": "launch",
             "name": "Run Digits Training",
             "mojoFile": "${workspaceFolder}/run_digits_training.mojo",
-            "args": [],
+            "args": [
+                "1", // epochs
+                "10" // length
+            ],
             "env": [],
             "cwd": "${workspaceFolder}",
             "runInTerminal": false
