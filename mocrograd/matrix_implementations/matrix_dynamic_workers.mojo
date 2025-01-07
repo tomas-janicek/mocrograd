@@ -169,7 +169,6 @@ struct Matrix(Copyable, Movable, KeyElement):
     fn __rmul__(self, other: Float32) -> Matrix:  # other * self
         return self * other
 
-    # TODO: Write tests to all this function on tensor side
     fn __pow__(self, other: Float32) -> Matrix:
         var out = Matrix(rows=self.rows, cols=self.cols)
         for row in range(self.rows):

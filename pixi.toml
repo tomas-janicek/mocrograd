@@ -1,5 +1,5 @@
 [project]
-authors = ["Tomas Janicek <tomas.janicek@redampsecurity.com>"]
+authors = ["Tomas Janicek <tomasjanicek221@gmail.com>"]
 channels = ["conda-forge", "https://conda.modular.com/max-nightly"]
 description = "Add a short description here"
 name = "mocrograd"
@@ -10,7 +10,7 @@ version = "0.1.0"
 tests = "mojo run run_tests.mojo"
 build_tests = "mojo build run_tests.mojo"
 nelts = "mojo run get_nelts.mojo"
-train_digits = "mojo run run_digits_training.mojo 1 100"
+train_digits = "mojo run run_digits_training.mojo 10 100"
 
 
 [dependencies]
