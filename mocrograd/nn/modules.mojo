@@ -18,7 +18,7 @@ trait Module:
     fn __call__(self, input: tensor.Tensor) raises -> tensor.Tensor:
         ...
 
-    fn __moveinit__(inout self, owned existing: Self):
+    fn __moveinit__(out self, owned existing: Self):
         ...
 
 
@@ -27,11 +27,11 @@ struct Linear(CollectionElement):
     var biases: tensor.Tensor
 
     fn __init__(
-        inout self,
+        out self,
         in_features: UInt,
         out_features: UInt,
         initialization: StringLiteral = "normal",
-    ) raises -> None:
+    ) raises:
         if initialization == "normal":
             self.weights = init.create_normal_weights(
                 rows=out_features, cols=in_features
@@ -53,10 +53,10 @@ struct Linear(CollectionElement):
     fn parameters(self) -> List[tensor.Tensor]:
         return List(self.weights, self.biases)
 
-    fn __moveinit__(inout self, owned existing: Self):
+    fn __moveinit__(out self, owned existing: Self):
         self.weights = existing.weights^
         self.biases = existing.biases^
 
-    fn __copyinit__(inout self, existing: Self):
+    fn __copyinit__(out self, existing: Self):
         self.weights = existing.weights
         self.biases = existing.biases

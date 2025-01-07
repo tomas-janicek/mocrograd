@@ -27,7 +27,7 @@ struct Tensor(Copyable, Movable, KeyElement):
 
     # Create zeroed
     fn __init__(
-        inout self: Tensor,
+        out self: Tensor,
         rows: Int,
         cols: Int,
         requires_grad: Bool = False,
@@ -49,7 +49,7 @@ struct Tensor(Copyable, Movable, KeyElement):
 
     # Create form data
     fn __init__(
-        inout self: Tensor,
+        out self: Tensor,
         owned data: matrix.Matrix,
         requires_grad: Bool = False,
     ):
@@ -70,7 +70,7 @@ struct Tensor(Copyable, Movable, KeyElement):
 
     # Create from scalar
     fn __init__(
-        inout self: Tensor,
+        out self: Tensor,
         owned value: Float32,
         requires_grad: Bool = False,
     ):
@@ -91,7 +91,7 @@ struct Tensor(Copyable, Movable, KeyElement):
 
     # Create zeroed with grad information
     fn __init__(
-        inout self: Tensor,
+        out self: Tensor,
         rows: Int,
         cols: Int,
         owned backward: Tensor.BackwardFunction,
@@ -117,7 +117,7 @@ struct Tensor(Copyable, Movable, KeyElement):
 
     # Create from data with grad information
     fn __init__(
-        inout self: Tensor,
+        out self: Tensor,
         owned data: matrix.Matrix,
         owned backward: Tensor.BackwardFunction,
         owned op: StringLiteral,
@@ -145,7 +145,7 @@ struct Tensor(Copyable, Movable, KeyElement):
         var data = matrix.Matrix.rand(rows, cols)
         return Tensor(data, requires_grad=requires_grad)
 
-    fn __copyinit__(inout self, existing: Self):
+    fn __copyinit__(out self, existing: Self):
         self.rows = existing.rows
         self.cols = existing.cols
         self.data = existing.data
@@ -156,7 +156,7 @@ struct Tensor(Copyable, Movable, KeyElement):
         self._grad_args = existing._grad_args
         self._backward = existing._backward
 
-    fn __moveinit__(inout self, owned existing: Self):
+    fn __moveinit__(out self, owned existing: Self):
         self.rows = existing.rows
         self.cols = existing.cols
         self.data = existing.data^
@@ -170,7 +170,7 @@ struct Tensor(Copyable, Movable, KeyElement):
     fn __getitem__(self, y: Int, x: Int) -> Scalar[type]:
         return self.data.load(y, x)
 
-    fn __setitem__(self: Tensor, y: Int, x: Int, val: Scalar[type]):
+    fn __setitem__(mut self: Tensor, y: Int, x: Int, val: Scalar[type]):
         self.data.store(y, x, val)
 
     fn __hash__(self) -> UInt:

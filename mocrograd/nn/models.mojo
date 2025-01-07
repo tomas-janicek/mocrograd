@@ -10,7 +10,7 @@ struct MLP(modules.Module):
     var l2: modules.Linear
     var l3: modules.Linear
 
-    fn __init__(inout self) raises -> None:
+    fn __init__(out self) raises:
         self.l1 = modules.Linear(
             in_features=2,
             out_features=16,
@@ -47,7 +47,7 @@ struct MLP(modules.Module):
 
         return parameters
 
-    fn __moveinit__(inout self, owned existing: Self):
+    fn __moveinit__(out self, owned existing: Self):
         self.l1 = existing.l1^
         self.l2 = existing.l2^
         self.l3 = existing.l3^
@@ -58,7 +58,7 @@ struct MLPDigits(modules.Module):
     var l2: modules.Linear
     var l3: modules.Linear
 
-    fn __init__(inout self) raises -> None:
+    fn __init__(out self) raises:
         self.l1 = modules.Linear(
             in_features=8 * 8,
             out_features=64,
@@ -96,7 +96,7 @@ struct MLPDigits(modules.Module):
 
         return parameters
 
-    fn __moveinit__(inout self, owned existing: Self):
+    fn __moveinit__(out self, owned existing: Self):
         self.l1 = existing.l1^
         self.l2 = existing.l2^
         self.l3 = existing.l3^
@@ -108,7 +108,7 @@ struct MLPDigitsBigger(modules.Module):
     var l3: modules.Linear
     var l4: modules.Linear
 
-    fn __init__(inout self) raises -> None:
+    fn __init__(out self) raises:
         self.l1 = modules.Linear(
             in_features=8 * 8,
             out_features=8192,
@@ -154,7 +154,7 @@ struct MLPDigitsBigger(modules.Module):
 
         return parameters
 
-    fn __moveinit__(inout self, owned existing: Self):
+    fn __moveinit__(out self, owned existing: Self):
         self.l1 = existing.l1^
         self.l2 = existing.l2^
         self.l3 = existing.l3^
@@ -164,12 +164,12 @@ struct MLPDigitsBigger(modules.Module):
 struct MLPDigitsLonger(modules.Module):
     var sequential_layers: List[modules.Linear]
 
-    fn __init__(inout self, n_layers: UInt) raises -> None:
+    fn __init__(out self, n_layers: UInt) raises:
         if n_layers < 2:
             raise "BadLayersArgument"
 
         self.sequential_layers = List[modules.Linear]()
-        first = modules.Linear(
+        var first = modules.Linear(
             in_features=8 * 8,
             out_features=256,
             initialization="kaiming",
@@ -214,5 +214,5 @@ struct MLPDigitsLonger(modules.Module):
 
         return parameters
 
-    fn __moveinit__(inout self, owned existing: Self):
+    fn __moveinit__(out self, owned existing: Self):
         self.sequential_layers = existing.sequential_layers^

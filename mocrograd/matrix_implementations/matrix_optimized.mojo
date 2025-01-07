@@ -27,7 +27,7 @@ struct Matrix(Copyable, Movable, KeyElement):
     var cols: Int
 
     # Initialize zeroing all values
-    fn __init__(inout self, rows: Int, cols: Int):
+    fn __init__(out self, rows: Int, cols: Int):
         self.rows = rows
         self.cols = cols
         self.data = ArcPointer(UnsafePointer[Scalar[type]].alloc(rows * cols))
@@ -35,7 +35,7 @@ struct Matrix(Copyable, Movable, KeyElement):
 
     # Initialize taking a pointer, don't set any elements
     fn __init__(
-        inout self,
+        out self,
         rows: Int,
         cols: Int,
         owned data: ArcPointer[UnsafePointer[Scalar[type]]],
@@ -44,7 +44,7 @@ struct Matrix(Copyable, Movable, KeyElement):
         self.cols = cols
         self.data = data^
 
-    fn __init__(inout self, owned value: Float32):
+    fn __init__(out self, owned value: Float32):
         self.rows = 1
         self.cols = 1
         self.data = ArcPointer(UnsafePointer[Scalar[type]].alloc(1))
@@ -71,7 +71,7 @@ struct Matrix(Copyable, Movable, KeyElement):
     fn __getitem__(self, row: Int, col: Int) -> Scalar[type]:
         return self.load(row, col)
 
-    fn __setitem__(inout self: Matrix, row: Int, col: Int, val: Scalar[type]):
+    fn __setitem__(mut self: Matrix, row: Int, col: Int, val: Scalar[type]):
         self.store(row, col, val)
 
     fn load[nelts: Int = 1](self, row: Int, col: Int) -> SIMD[type, nelts]:
@@ -80,12 +80,12 @@ struct Matrix(Copyable, Movable, KeyElement):
     fn store[nelts: Int = 1](self, row: Int, col: Int, val: SIMD[type, nelts]):
         self.data[].store(row * self.cols + col, val)
 
-    fn __copyinit__(inout self, existing: Self):
+    fn __copyinit__(out self, existing: Self):
         self.rows = existing.rows
         self.cols = existing.cols
         self.data = existing.data
 
-    fn __moveinit__(inout self, owned existing: Self):
+    fn __moveinit__(out self, owned existing: Self):
         self.rows = existing.rows
         self.cols = existing.cols
         self.data = existing.data^

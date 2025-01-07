@@ -10,7 +10,7 @@ struct FakeDataset(datasets.Dataset):
     var validation_target: List[tensor.Tensor]
 
     fn __init__(
-        inout self,
+        out self,
         train_len: UInt,
         validation_len: UInt,
         data_rows: UInt = 3,
@@ -47,7 +47,7 @@ struct FakeDataset(datasets.Dataset):
     ) -> Tuple[List[tensor.Tensor], List[tensor.Tensor]]:
         return self.validation_data, self.validation_target
 
-    fn __moveinit__(inout self, owned existing: Self):
+    fn __moveinit__(out self, owned existing: Self):
         self.train_data = existing.train_data^
         self.train_target = existing.train_target^
         self.validation_data = existing.validation_data^

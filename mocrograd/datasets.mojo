@@ -17,7 +17,7 @@ trait Dataset(Movable):
     ) -> Tuple[List[tensor.Tensor], List[tensor.Tensor]]:
         ...
 
-    fn __moveinit__(inout self, owned existing: Self):
+    fn __moveinit__(out self, owned existing: Self):
         ...
 
 
@@ -30,7 +30,7 @@ struct DataloaderIterator(Sized, Copyable):
     var iterations: UInt
 
     fn __init__(
-        inout self,
+        out self,
         owned data: List[tensor.Tensor],
         owned target: List[tensor.Tensor],
         batch_size: UInt,
@@ -48,7 +48,7 @@ struct DataloaderIterator(Sized, Copyable):
     fn __len__(self) -> Int:
         return self.iterations
 
-    fn __next__(inout self) -> DataTuple:
+    fn __next__(mut self) -> DataTuple:
         var start = self.current_state
         var end = start + self.batch_size
         if end > self.length:
@@ -65,7 +65,7 @@ struct DataloaderIterator(Sized, Copyable):
     fn __has_next__(self) -> Bool:
         return self.__len__() > 0
 
-    fn __copyinit__(inout self, existing: Self):
+    fn __copyinit__(out self, existing: Self):
         self.data = existing.data
         self.target = existing.target
         self.current_state = existing.current_state
@@ -84,7 +84,7 @@ struct Dataloader[DatasetT: Dataset]:
     var train_length: UInt
     var validation_length: UInt
 
-    fn __init__(inout self, owned dataset: DatasetT, batch_size: UInt) -> None:
+    fn __init__(out self, owned dataset: DatasetT, batch_size: UInt):
         self.batch_size = batch_size
         self.dataset = dataset^
         self.train_data, self.train_target = self.dataset.get_train_data()
@@ -121,7 +121,7 @@ struct DigitsData(Dataset):
     var train_target: List[tensor.Tensor]
     var validation_target: List[tensor.Tensor]
 
-    fn __init__(inout self, length: UInt) raises -> None:
+    fn __init__(out self, length: UInt) raises:
         self.length = length
         matrix_data, matrix_target = data.load_digits(length)
 
@@ -146,7 +146,7 @@ struct DigitsData(Dataset):
     ) -> Tuple[List[tensor.Tensor], List[tensor.Tensor]]:
         return self.validation_data, self.validation_target
 
-    fn __moveinit__(inout self, owned existing: Self):
+    fn __moveinit__(out self, owned existing: Self):
         self.length = existing.length
         self.train_data = existing.train_data
         self.validation_data = existing.validation_data

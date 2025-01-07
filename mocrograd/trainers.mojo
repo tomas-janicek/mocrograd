@@ -10,12 +10,12 @@ struct Trainer[ModuleT: nn.Module, OptimizerT: nn.Optimizer]:
     var accuracy_function: nn.AccuracyFunction
 
     fn __init__(
-        inout self,
+        out self,
         owned model: ModuleT,
         owned optimizer: OptimizerT,
         loss_function: nn.LossFunction,
         accuracy_function: nn.AccuracyFunction,
-    ) -> None:
+    ):
         self.model = model^
         self.optimizer = optimizer^
         self.loss_function = loss_function
