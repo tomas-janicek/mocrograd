@@ -38,8 +38,8 @@ fn main() raises:
     var arguments = sys.argv()
     if len(arguments) != 3:
         raise "BadArguments: Should be run_digits_training.mojo <epochs> <length>"
-    var epochs = int(arguments[1])
-    var length = int(arguments[2])
+    var epochs = Int(arguments[1])
+    var length = Int(arguments[2])
     print("\nTraining on Normal Model")
     train_digits(model_type="normal", epochs=epochs, length=length)
     print("\nTraining on Longer Model")

@@ -373,8 +373,8 @@ struct Tensor(Copyable, Movable, KeyElement):
         for row in range(self.rows):
             line += "["
             for col in range(self.cols - 1):
-                line += str(self[row, col]) + ", "
-            line += str(self[row, self.cols - 1]) + "],"
+                line += Str(self[row, col]) + ", "
+            line += Str(self[row, self.cols - 1]) + "],"
 
         line += "]"
         print(line)

@@ -27,7 +27,7 @@ fn load_digits(
 
     for digit in raw_target:
         var d = float(digit).cast[DType.uint32]()
-        var m_data = _one_hot_encode(int(d), n_classes=10)
+        var m_data = _one_hot_encode(Int(d), n_classes=10)
 
         target.append(m_data)
 

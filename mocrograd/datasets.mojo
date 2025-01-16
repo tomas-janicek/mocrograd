@@ -166,7 +166,7 @@ fn train_validation_split(
 ]:
     if len(data) != len(target):
         raise "InvalidDataTargetPair"
-    var validation_len = int(len(data) * validation_size)
+    var validation_len = Int(len(data) * validation_size)
     var train_length = len(data) - validation_len
 
     var train_slice = slice(train_length)
@@ -180,7 +180,7 @@ fn train_validation_split(
 
 
 fn _create_tensors(
-    borrowed matrices: List[matrix.Matrix],
+    read matrices: List[matrix.Matrix],
 ) -> List[tensor.Tensor]:
     var tensors = List[tensor.Tensor]()
     for matrix in matrices:
