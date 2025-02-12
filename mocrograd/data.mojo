@@ -18,7 +18,7 @@ fn load_digits(
         var m_data = matrix.Matrix(64, 1)
         var row = 0
         for digit in digits:
-            var d = float(digit).cast[DType.float32]()
+            var d = Float64(digit).cast[DType.float32]()
             # We want to normalize the data into range between 0 and 1.
             m_data[row, 0] = d / 16
             row += 1
@@ -26,7 +26,7 @@ fn load_digits(
         data.append(m_data)
 
     for digit in raw_target:
-        var d = float(digit).cast[DType.uint32]()
+        var d = Float64(digit).cast[DType.uint32]()
         var m_data = _one_hot_encode(Int(d), n_classes=10)
 
         target.append(m_data)

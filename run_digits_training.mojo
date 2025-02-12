@@ -40,9 +40,12 @@ fn main() raises:
         raise "BadArguments: Should be run_digits_training.mojo <epochs> <length>"
     var epochs = Int(arguments[1])
     var length = Int(arguments[2])
-    print("\nTraining on Normal Model")
+
+    print("\nTraining on Normal Model on " + String(length) + " samples")
     train_digits(model_type="normal", epochs=epochs, length=length)
-    print("\nTraining on Longer Model")
-    train_digits(model_type="longer", epochs=epochs, length=length)
-    print("\nTraining on Bigger Model")
-    train_digits(model_type="bigger", epochs=epochs, length=length)
+    longer_length = length // 10
+    print("\nTraining on Longer Model on " + String(longer_length) + " samples")
+    train_digits(model_type="longer", epochs=epochs, length=longer_length)
+    bigger_length = length // 100
+    print("\nTraining on Bigger Model on " + String(bigger_length) + " samples")
+    train_digits(model_type="bigger", epochs=epochs, length=bigger_length)
