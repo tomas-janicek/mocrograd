@@ -2,7 +2,7 @@
 
 Mocrograd is a lightweight library for automatic differentiation. It is designed to be simple and easy to use, making it a great choice for educational purposes and small projects.
 
-It is closely related to [Pycrograd](https://github.com/TomasJani/pycrograd]. It is used to the same educational purposes with the same motivation (described below), but it is more optimized and uses less memory.
+It is closely related to [Pycrograd](https://github.com/TomasJani/pycrograd). It is used to the same educational purposes with the same motivation (described below), but it is more optimized and uses less memory.
 
 ## 🎯 Motivation
 
@@ -89,30 +89,30 @@ All benchmarks are run on a MacBook Pro M1 with 32 GB of RAM. MacBook Pro M1 use
 
 #### Network size **[Normal]** 64 -> 64 -> 32 -> 10
 
-Training without any optimization: 20.281 seconds
-Training with optimization (1 worker): 20.587 seconds
-Training with optimization (10 workers): 20.907 seconds
-Training with optimization (64 workers): 23.513 seconds
-Training with optimization (256 workers): 30.205 seconds
-Training with optimization (dynamic workers): 21.602 seconds
+- Training without any optimization: 20.281 seconds
+- Training with optimization (1 worker): 20.587 seconds
+- Training with optimization (10 workers): 20.907 seconds
+- Training with optimization (64 workers): 23.513 seconds
+- Training with optimization (256 workers): 30.205 seconds
+- Training with optimization (dynamic workers): 21.602 seconds
 
 #### Network size **[Longer]** 64 [(-> 256) * 29] -> 10 (total of 30 layers)
 
-Training without any optimization: 56.842 seconds
-Training with optimization (1 worker): 56.849 seconds
-Training with optimization (10 workers): 55.059 seconds
-Training with optimization (64 workers): 56.790 seconds
-Training with optimization (256 workers): 59.224 seconds
-Training with optimization (dynamic workers): 58.162 seconds
+- Training without any optimization: 56.842 seconds
+- Training with optimization (1 worker): 56.849 seconds
+- Training with optimization (10 workers): 55.059 seconds
+- Training with optimization (64 workers): 56.790 seconds
+- Training with optimization (256 workers): 59.224 seconds
+- Training with optimization (dynamic workers): 58.162 seconds
 
 #### Network size **[Bigger]** 64 -> 8192 -> 4096 -> 2048 -> 10
 
-Training without any optimization: 94.953 seconds
-Training with optimization (1 worker): 92.970 seconds
-Training with optimization (10 workers): 78.058 seconds
-Training with optimization (64 workers): 80.794 seconds
-Training with optimization (256 workers): 79.919 seconds
-Training with optimization (dynamic workers): 87.143 seconds
+- Training without any optimization: 94.953 seconds
+- Training with optimization (1 worker): 92.970 seconds
+- Training with optimization (10 workers): 78.058 seconds
+- Training with optimization (64 workers): 80.794 seconds
+- Training with optimization (256 workers): 79.919 seconds
+- Training with optimization (dynamic workers): 87.143 seconds
 
 # 📚 Sources
 

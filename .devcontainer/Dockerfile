@@ -1,3 +1,5 @@
+# TODO: This is not tested enough, it's recommended to use local environment.
+
 FROM mcr.microsoft.com/devcontainers/base:ubuntu-24.04
 
 RUN apt update -y
