@@ -87,7 +87,7 @@ This helps to compare the performance of different implementations and configura
 
 All benchmarks are run on a MacBook Pro M1 with 32 GB of RAM. MacBook Pro M1 uses nelts with value 16.
 
-#### Network size **[Normal]** 64 -> 64 -> 32 -> 10
+#### 📈 Network size **[Normal]** 64 -> 64 -> 32 -> 10
 
 - Training without any optimization: 20.281 seconds
 - Training with optimization (1 worker): 20.587 seconds
@@ -96,7 +96,7 @@ All benchmarks are run on a MacBook Pro M1 with 32 GB of RAM. MacBook Pro M1 use
 - Training with optimization (256 workers): 30.205 seconds
 - Training with optimization (dynamic workers): 21.602 seconds
 
-#### Network size **[Longer]** 64 [(-> 256) * 29] -> 10 (total of 30 layers)
+#### 📈 Network size **[Longer]** 64 [(-> 256) * 29] -> 10 (total of 30 layers)
 
 - Training without any optimization: 56.842 seconds
 - Training with optimization (1 worker): 56.849 seconds
@@ -105,7 +105,7 @@ All benchmarks are run on a MacBook Pro M1 with 32 GB of RAM. MacBook Pro M1 use
 - Training with optimization (256 workers): 59.224 seconds
 - Training with optimization (dynamic workers): 58.162 seconds
 
-#### Network size **[Bigger]** 64 -> 8192 -> 4096 -> 2048 -> 10
+#### 📈 Network size **[Bigger]** 64 -> 8192 -> 4096 -> 2048 -> 10
 
 - Training without any optimization: 94.953 seconds
 - Training with optimization (1 worker): 92.970 seconds
