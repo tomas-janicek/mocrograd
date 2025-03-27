@@ -29,7 +29,9 @@ struct Matrix(Copyable, Movable, KeyElement):
     fn __init__(out self, rows: Int, cols: Int):
         self.rows = rows
         self.cols = cols
-        self.data = ArcPointer(UnsafePointer[Scalar[type]].alloc(rows * cols))
+        self.data = ArcPointer[UnsafePointer[Scalar[type]]](
+            UnsafePointer[Scalar[type]].alloc(rows * cols)
+        )
         memset_zero(self.data[], rows * cols)
 
     # Initialize taking a pointer, don't set any elements
@@ -46,7 +48,9 @@ struct Matrix(Copyable, Movable, KeyElement):
     fn __init__(out self, owned value: Float32):
         self.rows = 1
         self.cols = 1
-        self.data = ArcPointer(UnsafePointer[Scalar[type]].alloc(1))
+        self.data = ArcPointer[UnsafePointer[Scalar[type]]](
+            UnsafePointer[Scalar[type]].alloc(1)
+        )
         self.data[].init_pointee_move(value)
 
     # Initialize with random values
@@ -54,13 +58,13 @@ struct Matrix(Copyable, Movable, KeyElement):
     fn rand(rows: Int, cols: Int) -> Self:
         var data = UnsafePointer[Scalar[type]].alloc(rows * cols)
         random.rand(data, rows * cols)
-        return Self(rows, cols, ArcPointer(data))
+        return Self(rows, cols, ArcPointer[UnsafePointer[Scalar[type]]](data))
 
     @staticmethod
     fn randn(rows: Int, cols: Int) -> Self:
         var data = UnsafePointer[Scalar[type]].alloc(rows * cols)
         random.randn(data, rows * cols)
-        return Self(rows, cols, ArcPointer(data))
+        return Self(rows, cols, ArcPointer[UnsafePointer[Scalar[type]]](data))
 
     fn item(self) raises -> Scalar[type]:
         self._is_scalar()
